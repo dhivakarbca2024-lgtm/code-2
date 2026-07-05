@@ -1,0 +1,187 @@
+<?php
+// Initialize variables for handling form submission status
+$message = "";
+$message_class = "";
+
+// Check if the form has been submitted via POST method
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Collect and sanitize user inputs to prevent XSS vulnerabilities
+    $customer_name = htmlspecialchars(trim($_post['customer_name'] ?? ''));
+    $booking_date  = htmlspecialchars(trim($_post['booking_date'] ?? ''));
+    $seating       = htmlspecialchars(trim($_post['seating'] ?? ''));
+
+    // Validate that all required fields are filled out properly
+    if (!empty($customer_name) && !empty($booking_date) && !empty($seating)) {
+        // Success path: processed data could be saved to a database here
+        $message = "Thank you, <strong>" . $customer_name . "</strong>! Your table reservation for <strong>" . $booking_date . "</strong> (" . ucfirst($seating) . ") has been confirmed.";
+        $message_class = "success";
+    } else {
+        // Error path: triggered if any field is left empty
+        $message = "Please fill in all the fields to complete your reservation.";
+        $message_class = "error";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cozy Bean Cafe | Table Reservation</title>
+    <style>
+        :root {
+            --primary-color: #6f4e37;
+            --accent-color: #d2b48c;
+            --text-dark: #333;
+            --light-bg: #f9f6f0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .cafe-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+            border-top: 8px solid var(--primary-color);
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 24px;
+            text-align: center;
+        }
+        p.tagline {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[type="text"]:focus, input[type="date"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .radio-option input {
+            margin-right: 6px;
+        }
+        button[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: #553c2a;
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .alert.success {
+            background-color: #e2f0d9;
+            color: #385723;
+            border: 1px solid #c5e1b7;
+        }
+        .alert.error {
+            background-color: #fce4d6;
+            color: #c65911;
+            border: 1px solid #f8cbad;
+        }
+    </style>
+</head>
+<body>
+
+<div class="cafe-container">
+    <h1>The Cozy Bean Cafe</h1>
+    <p class="tagline">Reserve your spot and enjoy fresh brews</p>
+
+    <?php if (!empty($message)): ?>
+        <div class="alert <?php echo $message_class; ?>">
+            <?php echo $message; ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Form posts data back to the same file dynamically -->
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+        
+        <!-- Text Input Field -->
+        <div class="form-group">
+            <label for="customer_name">Your Name:</label>
+            <input type="text" id="customer_name" name="customer_name" placeholder="John Doe" required>
+        </div>
+
+        <!-- Date Input Field -->
+        <div class="form-group">
+            <label for="booking_date">Reservation Date:</label>
+            <input type="date" id="booking_date" name="booking_date" min="<?php echo date('Y-m-d'); ?>" required>
+        </div>
+
+        <!-- Radio Buttons Group -->
+        <div class="form-group">
+            <label>Seating Preference:</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="seating" value="indoor" checked> Indoor
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="seating" value="outdoor"> Outdoor
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="seating" value="window"> Window View
+                </label>
+            </div>
+        </div>
+
+        <!-- Submit Button Element -->
+        <button type="submit">Book Table Now</button>
+    </form>
+</div>
+
+</body>
+</html>
